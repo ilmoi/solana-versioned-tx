@@ -1,0 +1,73 @@
+{
+    "blockTime": 1666730657,
+    "meta": {
+        "err": null,
+        "fee": 5000,
+        "innerInstructions": [],
+        "logMessages": [
+            "Program 11111111111111111111111111111111 invoke [1]",
+            "Program 11111111111111111111111111111111 success"
+        ],
+        "postBalances": [
+            12785480857,
+            1803386346,
+            1
+        ],
+        "postTokenBalances": [],
+        "preBalances": [
+            12785485858,
+            1803386345,
+            1
+        ],
+        "preTokenBalances": [],
+        "rewards": [],
+        "status": {
+            "Ok": null
+        }
+    },
+    "slot": 157395693,
+    "transaction": {
+        "message": {
+            "accountKeys": [
+                {
+                    "pubkey": "CsuafJ4VM8v2NvBVrWyc3pEHrTtJXrSzmMacLdnwPqbj",
+                    "signer": true,
+                    "source": "transaction",
+                    "writable": true
+                },
+                {
+                    "pubkey": "dNCnRxNgCUxktTtvgx9YHnkGK1kyqRxTCjF9CvRVs94",
+                    "signer": false,
+                    "source": "transaction",
+                    "writable": true
+                },
+                {
+                    "pubkey": "11111111111111111111111111111111",
+                    "signer": false,
+                    "source": "transaction",
+                    "writable": false
+                }
+            ],
+            "addressTableLookups": null,
+            "instructions": [
+                {
+                    "parsed": {
+                        "info": {
+                            "destination": "dNCnRxNgCUxktTtvgx9YHnkGK1kyqRxTCjF9CvRVs94",
+                            "lamports": 1,
+                            "source": "CsuafJ4VM8v2NvBVrWyc3pEHrTtJXrSzmMacLdnwPqbj"
+                        },
+                        "type": "transfer"
+                    },
+                    "program": "system",
+                    "programId": "11111111111111111111111111111111"
+                }
+            ],
+            "recentBlockhash": "54KW2LekNiJH5rEaY51dyEX2tNw5M8qyaHhsz7XfFByt"
+        },
+        "signatures": [
+            "36tvHY3qWRPDrPj4x9NNR2St4zDgaFrSttTtw4gBvZhpTyXyGuqEf6ffs8RyXWArp4xSP8EQswrGdAeudK8gRi1m"
+        ]
+    },
+    "version": "legacy"
+}
