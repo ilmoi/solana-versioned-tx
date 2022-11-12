@@ -1,4 +1,5 @@
 import {
+  ComputeBudgetProgram,
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
@@ -430,28 +431,43 @@ const buildBuyTx = async ({
 
 export const waitMS = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+
+export const getExtraComputeTxn = (compute: number) => {
+    const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+        units: compute
+    });
+    const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: 1
+    });
+    return [modifyComputeUnits, addPriorityFee];
+};
+
 (async () => {
   const {tx: {ixs}} = await buildBuyTx({
     shares: new BN(100000),
     maxLamports: new BN(2 * LAMPORTS_PER_SOL),
     doSwap: true,
     buyer: SIGNER_WALLET.publicKey,
-    nftMint: new PublicKey("EuXv4Uo2Nof1AoXPqf6vYTAnaJ3svNbYjbzci3LrP8Dm"),
-    fNftMint: new PublicKey("6qicmtPwz4nHSj8fT8r3HEkw6UodgysaiDSowmUBUWNr"),
-    pNftMint: new PublicKey("McpgFn2CxFYFq6JLiBxeC6viNfebLsfsf9Sv5wcwKvL")
+    nftMint: new PublicKey("DHPPjfCQiZn51xJ7S46C6PnGHquC7SSzucbdqgkPTpNK"),
+    fNftMint: new PublicKey("GemHtghDrLSLV4Mv8cE7G4pHcbpzBEoVjRY7cUTWdY8"),
+    pNftMint: new PublicKey("9pXifXKWkudXuKn9DaU1d4y8pZPMjfj154AgQnkccvbf")
   })
 
   const lookupTableAccount = (
       await CONNECTION.getAddressLookupTable(
-        new PublicKey('BF12QGaMt4T3g4tqUWCULbiQ3Q3Sxhtg1aNkHYpKphiS'),
+        new PublicKey('3NHft4SEXiRUkg1SCqywKA9abjsQWmmHknL8gLqzn2BL'),
       )
     ).value;
+
+  const instructions = [];
+  instructions.push(...getExtraComputeTxn(800_000));
+  instructions.push(...ixs);
 
   const msg = new TransactionMessage({
     payerKey: SIGNER_WALLET.publicKey,
     recentBlockhash: (await CONNECTION.getLatestBlockhash('confirmed'))
       .blockhash,
-    instructions: ixs,
+    instructions,
   }).compileToV0Message([lookupTableAccount!]);
   const tx = new VersionedTransaction(msg);
 
