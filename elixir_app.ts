@@ -1,4 +1,5 @@
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
   Connection,
   Keypair,
@@ -442,6 +443,38 @@ export const getExtraComputeTxn = (compute: number) => {
     return [modifyComputeUnits, addPriorityFee];
 };
 
+export const getProgramsLookupTable = () => {
+    return getLookupTable(
+        [
+            ELIXIR_PROGRAM_IDS.associatedToken,
+            ELIXIR_PROGRAM_IDS.token,
+            ELIXIR_PROGRAM_IDS.system,
+            ELIXIR_PROGRAM_IDS.metadata,
+            SYSVAR_RENT_PUBKEY,
+            SYSVAR_CLOCK_PUBKEY,
+            ELIXIR_PROGRAM_IDS.amm,
+            ELIXIR_PROGRAM_IDS.vault
+        ],
+        ELIXIR_PROGRAM_IDS.lookups
+    );
+};
+
+export const getLookupTable = (addresses: Array<PublicKey>, address: PublicKey) => {
+    return {
+        key: address,
+        state: {
+            deactivationSlot: BigInt("1000000"),
+            lastExtendedSlot: 400000000000,
+            lastExtendedSlotStartIndex: 400000000000,
+            authority: PublicKey.default,
+            addresses
+        },
+        isActive: function (): boolean {
+            return true;
+        }
+    } as AddressLookupTableAccount;
+};
+
 (async () => {
   const {tx: {ixs}} = await buildBuyTx({
     shares: new BN(100000),
@@ -458,6 +491,8 @@ export const getExtraComputeTxn = (compute: number) => {
         new PublicKey('3NHft4SEXiRUkg1SCqywKA9abjsQWmmHknL8gLqzn2BL'),
       )
     ).value;
+  const lookupTableAddresses = lookupTableAccount?.state.addresses;
+  const lookupTable = new PublicKey('3NHft4SEXiRUkg1SCqywKA9abjsQWmmHknL8gLqzn2BL')
 
   const instructions = [];
   instructions.push(...getExtraComputeTxn(800_000));
@@ -468,7 +503,7 @@ export const getExtraComputeTxn = (compute: number) => {
     recentBlockhash: (await CONNECTION.getLatestBlockhash('confirmed'))
       .blockhash,
     instructions,
-  }).compileToV0Message([lookupTableAccount!]);
+  }).compileToV0Message([getProgramsLookupTable(), getLookupTable(lookupTableAddresses!, lookupTable)]);
   const tx = new VersionedTransaction(msg);
 
   tx.sign([SIGNER_WALLET])
