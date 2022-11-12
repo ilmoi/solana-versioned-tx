@@ -45,6 +45,16 @@ const storeSig = async (sig: string, name: string) => {
   fs.writeFileSync(`${name}.json`, JSON.stringify(fetchedTx))
 }
 
+const storeSigNonConverted = async (sig: string, name: string) => {
+  let fetchedTx;
+  while (!fetchedTx) {
+    fetchedTx = await conn.getTransaction(sig, {maxSupportedTransactionVersion: 0});
+    await waitMS(1000);
+  }
+  // console.log('fetched tx', JSON.stringify(fetchedTx, null, 4))
+  fs.writeFileSync(`${name}.json`, JSON.stringify(fetchedTx))
+}
+
 const getTransactionBackwardsCompatible = async (
   conn: Connection,
   sig: string
@@ -56,12 +66,10 @@ const getTransactionBackwardsCompatible = async (
   if (!tx) return null;
   //handle legacy, return as is
   if (tx.version === undefined || tx.version === null || tx.version === "legacy") {
-    console.log('LEGACY:', sig)
     return tx as TransactionResponse;
   }
   //handle v0
   if (tx.version === 0) {
-    console.log('v0:', sig)
     const v0msg = tx.transaction.message as MessageV0;
     const legacyMsg = new Message({
       header: v0msg.header,
@@ -213,11 +221,13 @@ const sendV0Tx = async (ixs: TransactionInstruction[], payer: Keypair, lookupTab
       const address = lookupTableAccount.state.addresses[i];
       console.log('stored addr:', i, address.toBase58());
     }
+    await waitMS(2000)
 
     //send a tx
     const sig = await sendV0Tx([sendTokenIx], WALLET_1, [lookupTableAccount]);
     await conn.confirmTransaction(sig)
     await storeSig(sig, 'tt_v0_lut')
+    await storeSigNonConverted(sig, 'tt_v0_lut_NONCONVERTED')
     console.log('done!')
   }
 })()

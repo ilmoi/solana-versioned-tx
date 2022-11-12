@@ -70,64 +70,64 @@ async function waitMS(ms: number) {
 
   // --------------------------------------- look up table
 
-  // const slot = await conn.getSlot("confirmed");
-  //
-  // //create
-  // const [lookupTableInst, lookupTableAddress] =
-  //   AddressLookupTableProgram.createLookupTable({
-  //     authority: SIGNER_WALLET.publicKey,
-  //     payer: SIGNER_WALLET.publicKey,
-  //     recentSlot: slot - 100,
-  //   });
-  // console.log("lookup table address:", lookupTableAddress.toBase58());
-  //
-  // //add addresses
-  // const extendInstruction = AddressLookupTableProgram.extendLookupTable({
-  //   payer: SIGNER_WALLET.publicKey,
-  //   authority: SIGNER_WALLET.publicKey,
-  //   lookupTable: lookupTableAddress,
-  //   addresses: [
-  //     SIGNER_WALLET.publicKey,
-  //     DESTINATION_WALLET,
-  //     SystemProgram.programId,
-  //   ],
-  // });
-  //
-  // const msg = new TransactionMessage({
-  //   payerKey: SIGNER_WALLET.publicKey,
-  //   recentBlockhash: bh,
-  //   instructions: [lookupTableInst, extendInstruction]
-  // }).compileToV0Message()
-  // const tx = new VersionedTransaction(msg);
-  // tx.sign([SIGNER_WALLET])
-  // console.log('created lut', await conn.sendTransaction(tx))
-  //
-  // //fetch
-  // let lookupTableAccount;
-  // while (!lookupTableAccount) {
-  //   console.log('trying to fetch lut...')
-  //   lookupTableAccount = (await conn.getAddressLookupTable(lookupTableAddress)).value;
-  //   console.log(lookupTableAccount)
-  //   await waitMS(1000)
-  // }
-  //
-  // if (lookupTableAccount) {
-  //   console.log("Table address from cluster:", lookupTableAccount.key.toBase58());
-  //   for (let i = 0; i < lookupTableAccount.state.addresses.length; i++) {
-  //     const address = lookupTableAccount.state.addresses[i];
-  //     console.log('stored addr:', i, address.toBase58());
-  //   }
-  //
-  //   //send a tx
-  //   const msg = new TransactionMessage({
-  //     payerKey: SIGNER_WALLET.publicKey,
-  //     recentBlockhash: bh,
-  //     instructions
-  //   }).compileToV0Message([lookupTableAccount])
-  //   const tx = new VersionedTransaction(msg);
-  //   tx.sign([SIGNER_WALLET])
-  //   console.log('fired off tx using lut', await conn.sendTransaction(tx))
-  // }
+  const slot = await conn.getSlot("confirmed");
+
+  //create
+  const [lookupTableInst, lookupTableAddress] =
+    AddressLookupTableProgram.createLookupTable({
+      authority: SIGNER_WALLET.publicKey,
+      payer: SIGNER_WALLET.publicKey,
+      recentSlot: slot - 100,
+    });
+  console.log("lookup table address:", lookupTableAddress.toBase58());
+
+  //add addresses
+  const extendInstruction = AddressLookupTableProgram.extendLookupTable({
+    payer: SIGNER_WALLET.publicKey,
+    authority: SIGNER_WALLET.publicKey,
+    lookupTable: lookupTableAddress,
+    addresses: [
+      SIGNER_WALLET.publicKey,
+      DESTINATION_WALLET,
+      SystemProgram.programId,
+    ],
+  });
+
+  const msg = new TransactionMessage({
+    payerKey: SIGNER_WALLET.publicKey,
+    recentBlockhash: bh,
+    instructions: [lookupTableInst, extendInstruction]
+  }).compileToV0Message()
+  const tx = new VersionedTransaction(msg);
+  tx.sign([SIGNER_WALLET])
+  console.log('created lut', await conn.sendTransaction(tx))
+
+  //fetch
+  let lookupTableAccount;
+  while (!lookupTableAccount) {
+    console.log('trying to fetch lut...')
+    lookupTableAccount = (await conn.getAddressLookupTable(lookupTableAddress)).value;
+    console.log(lookupTableAccount)
+    await waitMS(1000)
+  }
+
+  if (lookupTableAccount) {
+    console.log("Table address from cluster:", lookupTableAccount.key.toBase58());
+    for (let i = 0; i < lookupTableAccount.state.addresses.length; i++) {
+      const address = lookupTableAccount.state.addresses[i];
+      console.log('stored addr:', i, address.toBase58());
+    }
+
+    //send a tx
+    const msg = new TransactionMessage({
+      payerKey: SIGNER_WALLET.publicKey,
+      recentBlockhash: bh,
+      instructions
+    }).compileToV0Message([lookupTableAccount])
+    const tx = new VersionedTransaction(msg);
+    tx.sign([SIGNER_WALLET])
+    console.log('fired off tx using lut', await conn.sendTransaction(tx))
+  }
 
   // --------------------------------------- parse
 
